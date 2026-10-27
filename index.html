@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ACEM Fellowship Exam Prep</title>
+  
+  <!-- iOS PWA Meta Tags -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ACEM Prep" />
+  <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/192/caduceus.png" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #020617; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-teal-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40 px-4 py-3">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl">⚡</span>
+        <div>
+          <h1 class="font-bold text-base md:text-lg leading-tight text-slate-100">ACEM Mastery Tree</h1>
+          <p class="text-xs text-slate-400">Fellowship Written Exam Prep</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <div class="bg-slate-800 border border-slate-700 px-3 py-1 rounded-full text-xs font-semibold text-amber-400 flex items-center space-x-1">
+          <span>✨</span>
+          <span id="user-xp">0 XP</span>
+        </div>
+        <button onclick="toggleModal('modal-tables')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 flex items-center space-x-1 transition">
+          <span>📋</span>
+          <span class="hidden sm:inline">Reference</span> Tables
+        </button>
+        <button onclick="toggleModal('modal-io')" class="bg-teal-600 hover:bg-teal-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm">
+          Import / Export
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 flex flex-col gap-6">
+
+    <!-- Active Review Banner -->
+    <div id="deck-stats" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
+        <span class="text-xs text-slate-400 font-medium">Due for Review</span>
+        <div id="stat-due" class="text-xl font-bold text-amber-400 mt-0.5">0</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
+        <span class="text-xs text-slate-400 font-medium">Total Questions</span>
+        <div id="stat-total" class="text-xl font-bold text-teal-400 mt-0.5">0</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
+        <span class="text-xs text-slate-400 font-medium">Mastered</span>
+        <div id="stat-mastered" class="text-xl font-bold text-emerald-400 mt-0.5">0</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
+        <span class="text-xs text-slate-400 font-medium">Active Branch</span>
+        <div class="text-sm font-semibold text-sky-400 mt-1 truncate">RESUS & CRIT CARE</div>
+      </div>
+    </div>
+
+    <!-- View Mode Switcher -->
+    <div class="flex border-b border-slate-800 space-x-6 text-sm font-medium">
+      <button id="tab-btn-tree" onclick="switchView('tree')" class="pb-2.5 border-b-2 border-teal-500 text-teal-400">Curriculum Skill Tree</button>
+      <button id="tab-btn-study" onclick="switchView('study')" class="pb-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200">Study & Spaced Repetition</button>
+    </div>
+
+    <!-- VIEW: SKILL TREE -->
+    <div id="view-tree" class="flex-1">
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">Week 1: Paediatric Core Resuscitation</h2>
+          <span class="text-xs bg-teal-950 text-teal-300 border border-teal-800/60 px-2.5 py-0.5 rounded-full">Curriculum v1.0</span>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Node: RESUS-01 -->
+          <div onclick="selectNode('RESUS-01')" class="cursor-pointer bg-slate-800/90 hover:bg-slate-800 border-2 border-teal-500 rounded-xl p-4 transition shadow-lg relative group">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-mono font-bold text-teal-400 bg-teal-950/80 px-2 py-0.5 rounded">RESUS-01</span>
+              <span class="text-xs bg-emerald-900/80 text-emerald-300 px-2 py-0.5 rounded font-medium">UNLOCKED</span>
+            </div>
+            <h3 class="font-bold text-slate-100 text-base mt-2 group-hover:text-teal-300 transition">Paediatric Cardiopulmonary Arrest</h3>
+            <p class="text-xs text-slate-400 mt-1">Tintinalli Ch. 109 • Defibrillation, BLS/ALS ratios, and Rule of 6</p>
+            <div class="mt-4 flex items-center justify-between text-xs text-slate-400 border-t border-slate-700/60 pt-3">
+              <span id="node-resus-01-count">0 items ready</span>
+              <span class="text-teal-400 font-semibold group-hover:translate-x-0.5 transition inline-block">Study Node &rarr;</span>
+            </div>
+          </div>
+
+          <!-- Node: RESUS-02 (Locked) -->
+          <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-4 opacity-50 relative select-none">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-mono text-slate-500 bg-slate-800 px-2 py-0.5 rounded">RESUS-02</span>
+              <span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-medium">🔒 LOCKED</span>
+            </div>
+            <h3 class="font-semibold text-slate-300 text-base mt-2">Paediatric Status Epilepticus</h3>
+            <p class="text-xs text-slate-500 mt-1">Refractory protocols, levetiracetam/phenytoin infusions</p>
+            <div class="mt-4 text-xs text-slate-500 border-t border-slate-800 pt-3">Requires RESUS-01 Mastery (250 XP)</div>
+          </div>
+
+          <!-- Node: TOX-01 (Locked) -->
+          <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-4 opacity-50 relative select-none">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-mono text-slate-500 bg-slate-800 px-2 py-0.5 rounded">TOX-01</span>
+              <span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-medium">🔒 LOCKED</span>
+            </div>
+            <h3 class="font-semibold text-slate-300 text-base mt-2">Paediatric Poisoning & Overdose</h3>
+            <p class="text-xs text-slate-500 mt-1">One-pill-can-kill toxic ingestions, toxidromes</p>
+            <div class="mt-4 text-xs text-slate-500 border-t border-slate-800 pt-3">Week 2 Milestone Node</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: STUDY & REVIEW CARD -->
+    <div id="view-study" class="flex-1 hidden">
+      <div id="study-container" class="max-w-3xl mx-auto w-full">
+        <!-- Card Container renders dynamically -->
+      </div>
+    </div>
+  </main>
+
+  <!-- REFERENCE TABLES MODAL -->
+  <div id="modal-tables" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 max-w-4xl w-full rounded-2xl flex flex-col max-h-[90vh] shadow-2xl">
+      <div class="flex items-center justify-between p-4 border-b border-slate-800">
+        <h3 class="font-bold text-slate-200 text-sm md:text-base flex items-center space-x-2">
+          <span>📋</span>
+          <span>Resuscitation Reference Tables (Tintinalli Ch. 109)</span>
+        </h3>
+        <button onclick="toggleModal('modal-tables')" class="text-slate-400 hover:text-slate-200 text-xl font-bold p-1">&times;</button>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-6 scrollbar-thin text-xs text-slate-300">
+        
+        <!-- Table 109-7 -->
+        <div>
+          <h4 class="font-bold text-teal-400 mb-2 text-sm">Table 109-7: Energy Requirements for Defibrillation & Cardioversion</h4>
+          <div class="overflow-x-auto border border-slate-800 rounded-lg">
+            <table class="w-full text-left border-collapse">
+              <thead class="bg-slate-800/80 text-slate-300 font-semibold border-b border-slate-700">
+                <tr>
+                  <th class="p-2.5">Rhythm</th>
+                  <th class="p-2.5">Type of Shock</th>
+                  <th class="p-2.5">Initial Dose</th>
+                  <th class="p-2.5">Subsequent Doses</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800">
+                <tr>
+                  <td class="p-2.5 font-medium text-slate-200">VF or Pulseless VT</td>
+                  <td class="p-2.5">Defibrillation (Unsynchronized)</td>
+                  <td class="p-2.5 font-bold text-amber-400">2 J/kg</td>
+                  <td class="p-2.5 font-bold text-amber-400">4 J/kg (Max 10 J/kg or adult dose)</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-medium text-slate-200">Unstable SVT or VT with pulse</td>
+                  <td class="p-2.5">Synchronized Cardioversion</td>
+                  <td class="p-2.5 font-bold text-amber-400">0.5 - 1.0 J/kg</td>
+                  <td class="p-2.5 font-bold text-amber-400">2 J/kg</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Table 109-2 Drugs -->
+        <div>
+          <h4 class="font-bold text-teal-400 mb-2 text-sm">Table 109-2: Core Resuscitation Medications</h4>
+          <div class="overflow-x-auto border border-slate-800 rounded-lg">
+            <table class="w-full text-left border-collapse">
+              <thead class="bg-slate-800/80 text-slate-300 font-semibold border-b border-slate-700">
+                <tr>
+                  <th class="p-2.5">Drug</th>
+                  <th class="p-2.5">Route & Dose</th>
+                  <th class="p-2.5">Key Remarks / Discriminators</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800">
+                <tr>
+                  <td class="p-2.5 font-bold text-slate-200">Epinephrine</td>
+                  <td class="p-2.5">IV/IO: 0.01 mg/kg (0.1 mL/kg of 1:10,000)<br>ETT: 0.1 mg/kg (0.1 mL/kg of 1:1000)</td>
+                  <td class="p-2.5 text-slate-400">ETT dose is 10x the IV dose! No evidence for high-dose parenteral epinephrine. Repeat every 3-5 min.</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-bold text-slate-200">Amiodarone</td>
+                  <td class="p-2.5">IV/IO: 5 mg/kg bolus</td>
+                  <td class="p-2.5 text-slate-400">May repeat up to 2 times for refractory VF/pVT (max 15 mg/kg/day). Contraindicated in long QT.</td>
+                </tr>
