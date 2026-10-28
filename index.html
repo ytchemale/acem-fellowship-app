@@ -4,198 +4,854 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>ACEM Fellowship Exam Prep</title>
-  
-  <!-- iOS PWA Meta Tags -->
   <link rel="manifest" href="manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="ACEM Prep" />
-  <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/192/caduceus.png" />
-
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background-color: #020617; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
-    .scrollbar-thin::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    :root {
+      --bg: #020617;
+      --panel: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --teal: #14b8a6;
+      --teal-dark: #0d9488;
+      --amber: #f59e0b;
+      --emerald: #10b981;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+    }
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+      touch-action: manipulation;
+    }
+    .header {
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+    .header-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand h1 { margin: 0; font-size: 1.1rem; }
+    .brand p { margin: 0; font-size: 0.75rem; color: var(--muted); }
+    .nav-actions { display: flex; align-items: center; gap: 8px; }
+    .badge-xp {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--amber);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      transition: opacity 0.15s;
+    }
+    .btn:active { opacity: 0.7; }
+    .btn-primary {
+      background: var(--teal-dark);
+      border-color: var(--teal);
+      color: #fff;
+    }
+    .btn-danger {
+      background: rgba(127, 29, 29, 0.6);
+      border-color: var(--red);
+      color: #fecaca;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .stat-label { font-size: 0.75rem; color: var(--muted); }
+    .stat-val { font-size: 1.35rem; font-weight: 700; margin-top: 4px; }
+    .tabs {
+      display: flex;
+      gap: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      background: transparent;
+      color: var(--muted);
+      padding: 10px 4px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-bottom: 2px solid transparent;
+    }
+    .tab-btn.active {
+      color: var(--teal);
+      border-bottom-color: var(--teal);
+    }
+    .node-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .node-card {
+      background: var(--panel);
+      border: 2px solid var(--teal);
+      border-radius: 14px;
+      padding: 16px;
+      cursor: pointer;
+    }
+    .node-card.locked {
+      border: 1px solid var(--border);
+      opacity: 0.5;
+      cursor: default;
+    }
+    .study-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .stem-box {
+      background: rgba(2, 6, 23, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 14px 0;
+      white-space: pre-line;
+      font-size: 0.92rem;
+    }
+    .mcq-option {
+      width: 100%;
+      text-align: left;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.88rem;
+    }
+    .mcq-option.correct {
+      border-color: var(--emerald);
+      background: rgba(6, 78, 59, 0.5);
+      color: #a7f3d0;
+    }
+    .mcq-option.wrong {
+      border-color: var(--red);
+      background: rgba(127, 29, 29, 0.5);
+      color: #fecaca;
+    }
+    .key-pill {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--teal);
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    textarea.input-area {
+      width: 100%;
+      min-height: 120px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 12px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+    }
+    .rubric-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 14px;
+      font-size: 0.85rem;
+    }
+    table.ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+    table.ref-table th, table.ref-table td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+    }
+    table.ref-table th { background: var(--card); color: var(--teal); }
+    .srs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      max-width: 680px;
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .modal-body { overflow-y: auto; margin: 12px 0; }
+    .hidden { display: none !important; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-teal-500 selection:text-white">
+<body>
 
-  <!-- Header -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40 px-4 py-3">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <span class="text-2xl">⚡</span>
+  <!-- Navigation Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <span style="font-size: 1.6rem;">⚡</span>
         <div>
-          <h1 class="font-bold text-base md:text-lg leading-tight text-slate-100">ACEM Mastery Tree</h1>
-          <p class="text-xs text-slate-400">Fellowship Written Exam Prep</p>
+          <h1>ACEM Mastery Tree</h1>
+          <p>Fellowship Written Exam Prep</p>
         </div>
       </div>
-      <div class="flex items-center space-x-2">
-        <div class="bg-slate-800 border border-slate-700 px-3 py-1 rounded-full text-xs font-semibold text-amber-400 flex items-center space-x-1">
-          <span>✨</span>
-          <span id="user-xp">0 XP</span>
-        </div>
-        <button onclick="toggleModal('modal-tables')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 flex items-center space-x-1 transition">
-          <span>📋</span>
-          <span class="hidden sm:inline">Reference</span> Tables
-        </button>
-        <button onclick="toggleModal('modal-io')" class="bg-teal-600 hover:bg-teal-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm">
-          Import / Export
-        </button>
+      <div class="nav-actions">
+        <div class="badge-xp" id="user-xp">0 XP</div>
+        <button type="button" class="btn" id="btn-open-tables">📋 Tables</button>
+        <button type="button" class="btn btn-primary" id="btn-open-io">Import / Export</button>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Layout -->
-  <main class="flex-1 max-w-6xl w-full mx-auto p-4 flex flex-col gap-6">
-
-    <!-- Active Review Banner -->
-    <div id="deck-stats" class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
-        <span class="text-xs text-slate-400 font-medium">Due for Review</span>
-        <div id="stat-due" class="text-xl font-bold text-amber-400 mt-0.5">0</div>
+  <main class="container">
+    <!-- Top Stats -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-label">Due for Review</div>
+        <div class="stat-val" style="color: var(--amber);" id="stat-due">0</div>
       </div>
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
-        <span class="text-xs text-slate-400 font-medium">Total Questions</span>
-        <div id="stat-total" class="text-xl font-bold text-teal-400 mt-0.5">0</div>
+      <div class="stat-box">
+        <div class="stat-label">Total Questions</div>
+        <div class="stat-val" style="color: var(--teal);" id="stat-total">0</div>
       </div>
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
-        <span class="text-xs text-slate-400 font-medium">Mastered</span>
-        <div id="stat-mastered" class="text-xl font-bold text-emerald-400 mt-0.5">0</div>
+      <div class="stat-box">
+        <div class="stat-label">Mastered (≥14d)</div>
+        <div class="stat-val" style="color: var(--emerald);" id="stat-mastered">0</div>
       </div>
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
-        <span class="text-xs text-slate-400 font-medium">Active Branch</span>
-        <div class="text-sm font-semibold text-sky-400 mt-1 truncate">RESUS & CRIT CARE</div>
+      <div class="stat-box">
+        <div class="stat-label">Active Question</div>
+        <div class="stat-val" style="font-size: 1rem; color: #38bdf8;" id="stat-pos">1 / 1</div>
       </div>
     </div>
 
-    <!-- View Mode Switcher -->
-    <div class="flex border-b border-slate-800 space-x-6 text-sm font-medium">
-      <button id="tab-btn-tree" onclick="switchView('tree')" class="pb-2.5 border-b-2 border-teal-500 text-teal-400">Curriculum Skill Tree</button>
-      <button id="tab-btn-study" onclick="switchView('study')" class="pb-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200">Study & Spaced Repetition</button>
+    <!-- Mode Switcher Tabs -->
+    <div class="tabs">
+      <button type="button" class="tab-btn active" id="tab-tree">Curriculum Skill Tree</button>
+      <button type="button" class="tab-btn" id="tab-study">Study & Spaced Repetition</button>
     </div>
 
-    <!-- VIEW: SKILL TREE -->
-    <div id="view-tree" class="flex-1">
-      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">Week 1: Paediatric Core Resuscitation</h2>
-          <span class="text-xs bg-teal-950 text-teal-300 border border-teal-800/60 px-2.5 py-0.5 rounded-full">Curriculum v1.0</span>
+    <!-- VIEW 1: SKILL TREE -->
+    <section id="view-tree">
+      <div class="node-grid">
+        <div class="node-card" id="card-resus-01">
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700;">
+            <span style="color:var(--teal);">RESUS-01</span>
+            <span style="color:var(--emerald);">UNLOCKED</span>
+          </div>
+          <h3 style="margin: 8px 0 4px 0;">Paediatric Resuscitation</h3>
+          <p style="margin:0; font-size:0.8rem; color:var(--muted);">Tintinalli Ch. 109 • BLS/ALS, Drug Doses, Defibrillation & Algorithms</p>
+          <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border); display:flex; justify-content:space-between; font-size:0.8rem;">
+            <span id="node-resus-count">0 questions loaded</span>
+            <span style="color:var(--teal); font-weight:700;">Tap to Study &rarr;</span>
+          </div>
         </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- Node: RESUS-01 -->
-          <div onclick="selectNode('RESUS-01')" class="cursor-pointer bg-slate-800/90 hover:bg-slate-800 border-2 border-teal-500 rounded-xl p-4 transition shadow-lg relative group">
-            <div class="flex justify-between items-start">
-              <span class="text-xs font-mono font-bold text-teal-400 bg-teal-950/80 px-2 py-0.5 rounded">RESUS-01</span>
-              <span class="text-xs bg-emerald-900/80 text-emerald-300 px-2 py-0.5 rounded font-medium">UNLOCKED</span>
-            </div>
-            <h3 class="font-bold text-slate-100 text-base mt-2 group-hover:text-teal-300 transition">Paediatric Cardiopulmonary Arrest</h3>
-            <p class="text-xs text-slate-400 mt-1">Tintinalli Ch. 109 • Defibrillation, BLS/ALS ratios, and Rule of 6</p>
-            <div class="mt-4 flex items-center justify-between text-xs text-slate-400 border-t border-slate-700/60 pt-3">
-              <span id="node-resus-01-count">0 items ready</span>
-              <span class="text-teal-400 font-semibold group-hover:translate-x-0.5 transition inline-block">Study Node &rarr;</span>
-            </div>
-          </div>
 
-          <!-- Node: RESUS-02 (Locked) -->
-          <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-4 opacity-50 relative select-none">
-            <div class="flex justify-between items-start">
-              <span class="text-xs font-mono text-slate-500 bg-slate-800 px-2 py-0.5 rounded">RESUS-02</span>
-              <span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-medium">🔒 LOCKED</span>
-            </div>
-            <h3 class="font-semibold text-slate-300 text-base mt-2">Paediatric Status Epilepticus</h3>
-            <p class="text-xs text-slate-500 mt-1">Refractory protocols, levetiracetam/phenytoin infusions</p>
-            <div class="mt-4 text-xs text-slate-500 border-t border-slate-800 pt-3">Requires RESUS-01 Mastery (250 XP)</div>
+        <div class="node-card locked">
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+            <span>RESUS-02</span>
+            <span>🔒 LOCKED</span>
           </div>
-
-          <!-- Node: TOX-01 (Locked) -->
-          <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-4 opacity-50 relative select-none">
-            <div class="flex justify-between items-start">
-              <span class="text-xs font-mono text-slate-500 bg-slate-800 px-2 py-0.5 rounded">TOX-01</span>
-              <span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-medium">🔒 LOCKED</span>
-            </div>
-            <h3 class="font-semibold text-slate-300 text-base mt-2">Paediatric Poisoning & Overdose</h3>
-            <p class="text-xs text-slate-500 mt-1">One-pill-can-kill toxic ingestions, toxidromes</p>
-            <div class="mt-4 text-xs text-slate-500 border-t border-slate-800 pt-3">Week 2 Milestone Node</div>
+          <h3 style="margin: 8px 0 4px 0;">Paediatric Status Epilepticus</h3>
+          <p style="margin:0; font-size:0.8rem; color:var(--muted);">Second-line infusions, refractory airways</p>
+          <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border); font-size:0.75rem; color:var(--muted);">
+            Unlocks at 250 XP
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- VIEW: STUDY & REVIEW CARD -->
-    <div id="view-study" class="flex-1 hidden">
-      <div id="study-container" class="max-w-3xl mx-auto w-full">
-        <!-- Card Container renders dynamically -->
+    <!-- VIEW 2: STUDY PLAYER -->
+    <section id="view-study" class="hidden">
+      <div style="display:flex; justify-content:space-between; max-width:760px; margin: 0 auto 10px auto;">
+        <button type="button" class="btn" id="btn-prev-card">&larr; Previous</button>
+        <button type="button" class="btn" id="btn-next-card">Skip / Next &rarr;</button>
       </div>
-    </div>
+      <div id="study-container"></div>
+    </section>
   </main>
 
-  <!-- REFERENCE TABLES MODAL -->
-  <div id="modal-tables" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 max-w-4xl w-full rounded-2xl flex flex-col max-h-[90vh] shadow-2xl">
-      <div class="flex items-center justify-between p-4 border-b border-slate-800">
-        <h3 class="font-bold text-slate-200 text-sm md:text-base flex items-center space-x-2">
-          <span>📋</span>
-          <span>Resuscitation Reference Tables (Tintinalli Ch. 109)</span>
-        </h3>
-        <button onclick="toggleModal('modal-tables')" class="text-slate-400 hover:text-slate-200 text-xl font-bold p-1">&times;</button>
+  <!-- MODAL: IMPORT / EXPORT -->
+  <div class="modal-backdrop" id="modal-io">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0;">Import / Export Question Bank</h3>
+        <button type="button" class="btn" id="btn-close-io">&times; Close</button>
       </div>
-      <div class="p-5 overflow-y-auto space-y-6 scrollbar-thin text-xs text-slate-300">
-        
-        <!-- Table 109-7 -->
-        <div>
-          <h4 class="font-bold text-teal-400 mb-2 text-sm">Table 109-7: Energy Requirements for Defibrillation & Cardioversion</h4>
-          <div class="overflow-x-auto border border-slate-800 rounded-lg">
-            <table class="w-full text-left border-collapse">
-              <thead class="bg-slate-800/80 text-slate-300 font-semibold border-b border-slate-700">
-                <tr>
-                  <th class="p-2.5">Rhythm</th>
-                  <th class="p-2.5">Type of Shock</th>
-                  <th class="p-2.5">Initial Dose</th>
-                  <th class="p-2.5">Subsequent Doses</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-800">
-                <tr>
-                  <td class="p-2.5 font-medium text-slate-200">VF or Pulseless VT</td>
-                  <td class="p-2.5">Defibrillation (Unsynchronized)</td>
-                  <td class="p-2.5 font-bold text-amber-400">2 J/kg</td>
-                  <td class="p-2.5 font-bold text-amber-400">4 J/kg (Max 10 J/kg or adult dose)</td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-medium text-slate-200">Unstable SVT or VT with pulse</td>
-                  <td class="p-2.5">Synchronized Cardioversion</td>
-                  <td class="p-2.5 font-bold text-amber-400">0.5 - 1.0 J/kg</td>
-                  <td class="p-2.5 font-bold text-amber-400">2 J/kg</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <div class="modal-body">
+        <p style="font-size:0.8rem; color:var(--muted); margin-top:4px;">
+          Paste the JSON output from Google AI Studio below and tap <strong>Import JSON</strong>.
+        </p>
+        <textarea id="io-textarea" class="input-area" style="min-height:180px;" placeholder='Paste JSON here...'></textarea>
+        <div id="io-status" style="font-size:0.8rem; margin-bottom:8px;"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <button type="button" class="btn btn-danger" id="btn-reset-data">Reset Starter Deck</button>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn" id="btn-export-json">Download Backup</button>
+          <button type="button" class="btn btn-primary" id="btn-import-json">Import JSON</button>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <!-- Table 109-2 Drugs -->
-        <div>
-          <h4 class="font-bold text-teal-400 mb-2 text-sm">Table 109-2: Core Resuscitation Medications</h4>
-          <div class="overflow-x-auto border border-slate-800 rounded-lg">
-            <table class="w-full text-left border-collapse">
-              <thead class="bg-slate-800/80 text-slate-300 font-semibold border-b border-slate-700">
-                <tr>
-                  <th class="p-2.5">Drug</th>
-                  <th class="p-2.5">Route & Dose</th>
-                  <th class="p-2.5">Key Remarks / Discriminators</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-800">
-                <tr>
-                  <td class="p-2.5 font-bold text-slate-200">Epinephrine</td>
-                  <td class="p-2.5">IV/IO: 0.01 mg/kg (0.1 mL/kg of 1:10,000)<br>ETT: 0.1 mg/kg (0.1 mL/kg of 1:1000)</td>
-                  <td class="p-2.5 text-slate-400">ETT dose is 10x the IV dose! No evidence for high-dose parenteral epinephrine. Repeat every 3-5 min.</td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-bold text-slate-200">Amiodarone</td>
-                  <td class="p-2.5">IV/IO: 5 mg/kg bolus</td>
-                  <td class="p-2.5 text-slate-400">May repeat up to 2 times for refractory VF/pVT (max 15 mg/kg/day). Contraindicated in long QT.</td>
-                </tr>
+  <!-- MODAL: REFERENCE TABLES -->
+  <div class="modal-backdrop" id="modal-tables">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0;">📋 Resuscitation Reference Tables (Ch. 109)</h3>
+        <button type="button" class="btn" id="btn-close-tables">&times; Close</button>
+      </div>
+      <div class="modal-body">
+        <h4 style="color:var(--teal); margin-bottom:4px;">Table 109-7: Defibrillation & Cardioversion Energy</h4>
+        <table class="ref-table">
+          <thead>
+            <tr><th>Rhythm</th><th>Shock Type</th><th>Initial</th><th>Subsequent</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>VF / Pulseless VT</td><td>Unsynchronized</td><td>2 J/kg</td><td>4 J/kg (Max 10 J/kg)</td></tr>
+            <tr><td>Unstable SVT / VT with pulse</td><td>Synchronized</td><td>0.5 - 1 J/kg</td><td>2 J/kg</td></tr>
+          </tbody>
+        </table>
+
+        <h4 style="color:var(--teal); margin: 16px 0 4px 0;">Table 109-2: Core Resuscitation Drugs</h4>
+        <table class="ref-table">
+          <thead>
+            <tr><th>Medication</th><th>Dose & Route</th><th>Key Discriminator</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Epinephrine</td><td>IV/IO: 0.01 mg/kg (1:10,000)<br>ETT: 0.1 mg/kg (1:1,000)</td><td>ETT is 10x IV dose. Repeat q3-5m.</td></tr>
+            <tr><td>Amiodarone</td><td>IV/IO: 5 mg/kg bolus</td><td>Repeat up to 15 mg/kg/d. Avoid in Long QT.</td></tr>
+            <tr><td>Atropine</td><td>IV/IO: 0.02 mg/kg (min 0.1 mg)</td><td>Max single 0.5 mg (child). For vagal/AV block.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Register Service Worker safely
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js').catch(function() {});
+      });
+    }
+
+    var SEED_QUESTIONS = [
+      {
+        questionId: "RESUS-01-SAQ-01",
+        targetNodeId: "RESUS-01",
+        questionType: "SAQ",
+        topic: "Refractory Paediatric Cardiac Arrest - VF/pVT (12 Marks)",
+        stem: "A 4-year-old child (estimated weight 16 kg) suffers a witnessed collapse in the ED waiting room. Cardiac monitor shows ventricular fibrillation.\n\na) Calculate the first and second defibrillation energy doses in Joules, quoting the weight-based formula. (2 marks)\nb) State four (4) HIGHEST PRIORITY resuscitation interventions if VF persists after the second shock. (4 marks)\nc) List six (6) reversible causes (Hs and Ts) that must be excluded during CPR. (6 marks)",
+        markingCriteria: [
+          "[a - 1 mark] 1st shock: 2 J/kg = 32 J unsynchronized",
+          "[a - 1 mark] 2nd shock: 4 J/kg = 64 J unsynchronized",
+          "[b - 1 mark] Resume immediate CPR (15:2 ratio) for 2 minutes post-shock",
+          "[b - 1 mark] Administer IV/IO Epinephrine 0.01 mg/kg (0.16 mg = 1.6 mL of 1:10,000) every 3-5 min",
+          "[b - 1 mark] Administer IV/IO Amiodarone 5 mg/kg (80 mg) bolus OR Lidocaine 1 mg/kg (16 mg) after 3rd shock",
+          "[b - 1 mark] Perform endotracheal intubation with waveform capnography (continuous compressions + 1 breath q6s)",
+          "[c - 6 marks] Hypoxia, Hypovolemia, Hydrogen ion (acidosis), Hypo/hyperkalemia, Hypothermia, Tension pneumothorax, Tamponade, Toxins, Thrombosis"
+        ],
+        modelAnswer: "Initial defibrillation is 2 J/kg (32 J), escalating to 4 J/kg (64 J) for the second and subsequent shocks (up to 10 J/kg). High-quality uninterrupted CPR is resumed immediately for 2 minutes after each shock. Epinephrine 0.01 mg/kg IV/IO is given during the second cycle, and Amiodarone 5 mg/kg IV/IO is indicated for shock-refractory VF/pVT.",
+        citation: {
+          textbook: "Tintinalli 9th ed",
+          chapterTitle: "Chapter 109: Resuscitation of Children",
+          keySection: "Figure 109-5 & Table 109-7"
+        },
+        tables: [
+          {
+            title: "Table 109-7: Defibrillation Escalation (16 kg Child)",
+            headers: ["Shock", "Formula", "Calculated Dose"],
+            rows: [
+              ["First Shock", "2 J/kg", "32 J"],
+              ["Second Shock", "4 J/kg", "64 J"],
+              ["Subsequent", "4 - 10 J/kg", "64 - 160 J"]
+            ]
+          }
+        ]
+      },
+      {
+        questionId: "RESUS-01-MCQ-01",
+        targetNodeId: "RESUS-01",
+        questionType: "MCQ",
+        topic: "Endotracheal Resuscitation Drug Dosing",
+        stem: "During the resuscitation of a 10 kg infant in asystole, IV and IO access have failed, but an endotracheal tube is in situ. What is the correct endotracheal dose and concentration of epinephrine?",
+        options: {
+          A: "0.01 mg/kg (0.1 mL/kg of 1:10,000)",
+          B: "0.02 mg/kg (0.2 mL/kg of 1:10,000)",
+          C: "0.1 mg/kg (0.1 mL/kg of 1:1,000)",
+          D: "0.5 mg/kg (0.5 mL/kg of 1:1,000)"
+        },
+        correctOption: "C",
+        modelAnswer: "Correct Answer: C. While most LEAN drugs (Lidocaine, Epinephrine, Atropine, Naloxone) are dosed at 2-3x the IV dose when given via ETT, Epinephrine requires 10x the IV dose: 0.1 mg/kg (0.1 mL/kg of 1:1,000 concentration), up to a maximum ETT dose of 2.5 mg.",
+        citation: {
+          textbook: "Tintinalli 9th ed",
+          chapterTitle: "Chapter 109: Resuscitation of Children",
+          keySection: "Table 109-2: Drugs for Pediatric Resuscitation"
+        },
+        tables: []
+      }
+    ];
+
+    var appData = {
+      xp: 0,
+      questions: [],
+      srs: {}
+    };
+    var currentCardIndex = 0;
+    var timerInterval = null;
+    var secondsElapsed = 0;
+
+    function loadState() {
+      try {
+        var raw = localStorage.getItem('acem_app_data_v2');
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.questions) && parsed.questions.length > 0) {
+            appData = parsed;
+          } else {
+            appData.questions = SEED_QUESTIONS.slice();
+          }
+        } else {
+          appData.questions = SEED_QUESTIONS.slice();
+        }
+      } catch (e) {
+        appData.questions = SEED_QUESTIONS.slice();
+      }
+      updateStatsUI();
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem('acem_app_data_v2', JSON.stringify(appData));
+      } catch (e) {}
+      updateStatsUI();
+    }
+
+    function updateStatsUI() {
+      document.getElementById('user-xp').textContent = appData.xp + ' XP';
+      document.getElementById('stat-total').textContent = appData.questions.length;
+      document.getElementById('node-resus-count').textContent = appData.questions.length + ' questions loaded';
+      document.getElementById('stat-pos').textContent = (appData.questions.length ? (currentCardIndex + 1) : 0) + ' / ' + appData.questions.length;
+
+      var now = Date.now();
+      var due = 0;
+      var mastered = 0;
+      for (var i = 0; i < appData.questions.length; i++) {
+        var q = appData.questions[i];
+        var s = appData.srs[q.questionId];
+        if (!s || s.dueDate <= now) due++;
+        if (s && s.interval >= 14) mastered++;
+      }
+      document.getElementById('stat-due').textContent = due;
+      document.getElementById('stat-mastered').textContent = mastered;
+    }
+
+    function showView(viewName) {
+      var treeSec = document.getElementById('view-tree');
+      var studySec = document.getElementById('view-study');
+      var tabTree = document.getElementById('tab-tree');
+      var tabStudy = document.getElementById('tab-study');
+
+      if (viewName === 'tree') {
+        treeSec.classList.remove('hidden');
+        studySec.classList.add('hidden');
+        tabTree.classList.add('active');
+        tabStudy.classList.remove('active');
+      } else {
+        treeSec.classList.add('hidden');
+        studySec.classList.remove('hidden');
+        tabTree.classList.remove('active');
+        tabStudy.classList.add('active');
+        renderCard();
+      }
+    }
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function renderCard() {
+      var container = document.getElementById('study-container');
+      if (!appData.questions.length) {
+        container.innerHTML = '<div class="study-card">No questions loaded. Tap Import / Export to paste your JSON.</div>';
+        return;
+      }
+      if (currentCardIndex >= appData.questions.length) currentCardIndex = 0;
+      if (currentCardIndex < 0) currentCardIndex = appData.questions.length - 1;
+
+      updateStatsUI();
+      var q = appData.questions[currentCardIndex];
+      var isMCQ = (q.questionType === 'MCQ' || (q.options && Object.keys(q.options).length > 0));
+
+      clearInterval(timerInterval);
+      secondsElapsed = 0;
+
+      var html = '<div class="study-card">';
+      html += '<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px; font-size:0.8rem;">';
+      html += '<div><strong style="color:var(--teal); font-family:monospace;">' + escapeHTML(q.questionId || ('Q-' + (currentCardIndex + 1))) + '</strong> &bull; <span>' + (isMCQ ? 'SCQ / MCQ' : 'SAQ') + '</span></div>';
+      html += '<div style="font-family:monospace; color:var(--amber);">⏱ <span id="timer-display">00:00</span></div>';
+      html += '</div>';
+
+      html += '<h2 style="font-size:1.1rem; margin:14px 0 6px 0;">' + escapeHTML(q.topic || 'Clinical Scenario') + '</h2>';
+      html += '<div class="stem-box">' + escapeHTML(q.stem) + '</div>';
+
+      if (isMCQ && q.options) {
+        html += '<div id="mcq-options-wrap">';
+        var keys = Object.keys(q.options);
+        for (var i = 0; i < keys.length; i++) {
+          var k = keys[i];
+          html += '<button type="button" class="mcq-option" data-opt="' + escapeHTML(k) + '">';
+          html += '<span class="key-pill">' + escapeHTML(k) + '</span>';
+          html += '<span>' + escapeHTML(q.options[k]) + '</span>';
+          html += '</button>';
+        }
+        html += '</div>';
+      } else {
+        html += '<textarea class="input-area" placeholder="Write your structured SAQ answer here..."></textarea>';
+        html += '<button type="button" class="btn btn-primary" style="width:100%; padding:12px;" id="btn-reveal-saq">Reveal Marking Criteria & Model Answer</button>';
+      }
+
+      // Hidden Answer & Explanation Block
+      html += '<div id="answer-block" class="hidden">';
+
+      if (q.markingCriteria && q.markingCriteria.length) {
+        html += '<div class="rubric-box">';
+        html += '<div style="color:var(--teal); font-weight:700; margin-bottom:8px; font-size:0.78rem; text-transform:uppercase;">ACEM Marking Criteria</div>';
+        for (var m = 0; m < q.markingCriteria.length; m++) {
+          html += '<label style="display:flex; gap:8px; margin-bottom:6px; cursor:pointer;">';
+          html += '<input type="checkbox" /> <span>' + escapeHTML(q.markingCriteria[m]) + '</span>';
+          html += '</label>';
+        }
+        html += '</div>';
+      }
+
+      var explanationText = q.modelAnswer || q.explanation || '';
+      if (explanationText) {
+        html += '<div class="rubric-box">';
+        html += '<div style="color:var(--amber); font-weight:700; margin-bottom:6px; font-size:0.78rem; text-transform:uppercase;">Consultant Model Answer & Explanation</div>';
+        html += '<div style="white-space:pre-line;">' + escapeHTML(explanationText) + '</div>';
+        html += '</div>';
+      }
+
+      if (q.tables && q.tables.length) {
+        for (var t = 0; t < q.tables.length; t++) {
+          var tbl = q.tables[t];
+          html += '<div class="rubric-box">';
+          html += '<div style="color:var(--teal); font-weight:700; margin-bottom:6px;">📊 ' + escapeHTML(tbl.title || 'Reference Table') + '</div>';
+          html += '<div style="overflow-x:auto;"><table class="ref-table">';
+          if (tbl.headers && tbl.headers.length) {
+            html += '<thead><tr>';
+            for (var h = 0; h < tbl.headers.length; h++) {
+              html += '<th>' + escapeHTML(tbl.headers[h]) + '</th>';
+            }
+            html += '</tr></thead>';
+          }
+          if (tbl.rows && tbl.rows.length) {
+            html += '<tbody>';
+            for (var r = 0; r < tbl.rows.length; r++) {
+              html += '<tr>';
+              for (var c = 0; c < tbl.rows[r].length; c++) {
+                html += '<td>' + escapeHTML(tbl.rows[r][c]) + '</td>';
+              }
+              html += '</tr>';
+            }
+            html += '</tbody>';
+          }
+          html += '</table></div></div>';
+        }
+      }
+
+      if (q.citation) {
+        html += '<div style="font-size:0.75rem; color:var(--muted); margin-top:10px;">📖 <strong>Source:</strong> ' +
+          escapeHTML(q.citation.textbook || '') + ' &bull; ' +
+          escapeHTML(q.citation.chapterTitle || '') + ' &bull; ' +
+          escapeHTML(q.citation.keySection || '') + '</div>';
+      }
+
+      html += '<div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border);">';
+      html += '<div style="text-align:center; font-size:0.78rem; color:var(--muted); margin-bottom:8px;">Rate recall to schedule Spaced Repetition interval:</div>';
+      html += '<div class="srs-grid">';
+      html += '<button type="button" class="btn btn-danger srs-rate-btn" data-grade="1">Again (1d)</button>';
+      html += '<button type="button" class="btn srs-rate-btn" style="border-color:var(--amber); color:var(--amber);" data-grade="2">Hard (3d)</button>';
+      html += '<button type="button" class="btn srs-rate-btn" style="border-color:var(--teal); color:var(--teal);" data-grade="3">Good (7d)</button>';
+      html += '<button type="button" class="btn srs-rate-btn" style="border-color:var(--emerald); color:var(--emerald);" data-grade="4">Easy (14d)</button>';
+      html += '</div></div>';
+
+      html += '</div></div>';
+      container.innerHTML = html;
+
+      // Bind MCQ Option Buttons
+      var optButtons = container.querySelectorAll('.mcq-option');
+      for (var b = 0; b < optButtons.length; b++) {
+        optButtons[b].addEventListener('click', function() {
+          var chosen = this.getAttribute('data-opt');
+          var correct = q.correctOption;
+          for (var j = 0; j < optButtons.length; j++) {
+            var btn = optButtons[j];
+            var k = btn.getAttribute('data-opt');
+            if (k === correct) btn.classList.add('correct');
+            else if (k === chosen) btn.classList.add('wrong');
+          }
+          document.getElementById('answer-block').classList.remove('hidden');
+        });
+      }
+
+      // Bind SAQ Reveal Button
+      var revealBtn = document.getElementById('btn-reveal-saq');
+      if (revealBtn) {
+        revealBtn.addEventListener('click', function() {
+          document.getElementById('answer-block').classList.remove('hidden');
+          revealBtn.classList.add('hidden');
+        });
+      }
+
+      // Bind SRS Rating Buttons
+      var rateBtns = container.querySelectorAll('.srs-rate-btn');
+      for (var g = 0; g < rateBtns.length; g++) {
+        rateBtns[g].addEventListener('click', function() {
+          var grade = parseInt(this.getAttribute('data-grade'), 10);
+          gradeCurrentCard(grade);
+        });
+      }
+
+      timerInterval = setInterval(function() {
+        secondsElapsed++;
+        var m = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+        var s = String(secondsElapsed % 60).padStart(2, '0');
+        var el = document.getElementById('timer-display');
+        if (el) el.textContent = m + ':' + s;
+      }, 1000);
+    }
+
+    function gradeCurrentCard(grade) {
+      var q = appData.questions[currentCardIndex];
+      var id = q.questionId || ('Q-' + currentCardIndex);
+      var s = appData.srs[id] || { reps: 0, interval: 1, ease: 2.5, dueDate: 0 };
+
+      if (grade === 1) {
+        s.reps = 0;
+        s.interval = 1;
+      } else {
+        if (s.reps === 0) s.interval = 1;
+        else if (s.reps === 1) s.interval = 3;
+        else s.interval = Math.round(s.interval * s.ease);
+        s.reps += 1;
+        s.ease = Math.max(1.3, s.ease + (0.1 - (4 - grade) * (0.08 + (4 - grade) * 0.02)));
+      }
+      s.dueDate = Date.now() + (s.interval * 86400000);
+      appData.srs[id] = s;
+      appData.xp += (grade * 15);
+      saveState();
+
+      currentCardIndex = (currentCardIndex + 1) % appData.questions.length;
+      renderCard();
+    }
+
+    function handleImportJSON() {
+      var rawText = document.getElementById('io-textarea').value.trim();
+      var statusEl = document.getElementById('io-status');
+      if (!rawText) {
+        statusEl.style.color = 'var(--amber)';
+        statusEl.textContent = 'Please paste your JSON into the text box first.';
+        return;
+      }
+
+      // Strip markdown code fences if AI Studio included ```json ... ```
+      var cleaned = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+
+      try {
+        var parsed = JSON.parse(cleaned);
+        var incoming = [];
+        if (Array.isArray(parsed)) {
+          incoming = parsed;
+        } else if (parsed && Array.isArray(parsed.questions)) {
+          incoming = parsed.questions;
+        } else if (parsed && parsed.stem) {
+          incoming = [parsed];
+        }
+
+        if (!incoming.length) {
+          statusEl.style.color = 'var(--red)';
+          statusEl.textContent = 'No questions array found inside the pasted JSON.';
+          return;
+        }
+
+        var existingIds = {};
+        for (var i = 0; i < appData.questions.length; i++) {
+          existingIds[appData.questions[i].questionId] = true;
+        }
+
+        var added = 0;
+        for (var j = 0; j < incoming.length; j++) {
+          var item = incoming[j];
+          if (!item.questionId) {
+            item.questionId = 'CUSTOM-Q-' + (appData.questions.length + j + 1);
+          }
+          if (!item.questionType) {
+            item.questionType = (item.options && Object.keys(item.options).length) ? 'MCQ' : 'SAQ';
+          }
+          if (!existingIds[item.questionId]) {
+            appData.questions.push(item);
+            existingIds[item.questionId] = true;
+            added++;
+          } else {
+            // Update existing question with same ID
+            for (var k = 0; k < appData.questions.length; k++) {
+              if (appData.questions[k].questionId === item.questionId) {
+                appData.questions[k] = item;
+                added++;
+                break;
+              }
+            }
+          }
+        }
+
+        saveState();
+        document.getElementById('io-textarea').value = '';
+        statusEl.style.color = 'var(--emerald)';
+        statusEl.textContent = 'Success! Imported ' + added + ' questions. Total in deck: ' + appData.questions.length;
+        setTimeout(function() {
+          document.getElementById('modal-io').classList.remove('open');
+          showView('study');
+        }, 900);
+      } catch (err) {
+        statusEl.style.color = 'var(--red)';
+        statusEl.textContent = 'JSON Syntax Error: ' + err.message + '. Check that the entire output from { to } was copied.';
+      }
+    }
+
+    // Attach all UI listeners once DOM loads
+    document.addEventListener('DOMContentLoaded', function() {
+      loadState();
+
+      document.getElementById('tab-tree').addEventListener('click', function() { showView('tree'); });
+      document.getElementById('tab-study').addEventListener('click', function() { showView('study'); });
+      document.getElementById('card-resus-01').addEventListener('click', function() { showView('study'); });
+
+      document.getElementById('btn-prev-card').addEventListener('click', function() {
+        currentCardIndex--;
+        renderCard();
+      });
+      document.getElementById('btn-next-card').addEventListener('click', function() {
+        currentCardIndex++;
+        renderCard();
+      });
+
+      document.getElementById('btn-open-io').addEventListener('click', function() {
+        document.getElementById('io-status').textContent = '';
+        document.getElementById('modal-io').classList.add('open');
+      });
+      document.getElementById('btn-close-io').addEventListener('click', function() {
+        document.getElementById('modal-io').classList.remove('open');
+      });
+
+      document.getElementById('btn-open-tables').addEventListener('click', function() {
+        document.getElementById('modal-tables').classList.add('open');
+      });
+      document.getElementById('btn-close-tables').addEventListener('click', function() {
+        document.getElementById('modal-tables').classList.remove('open');
+      });
+
+      document.getElementById('btn-import-json').addEventListener('click', handleImportJSON);
+
+      document.getElementById('btn-export-json').addEventListener('click', function() {
+        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+        var a = document.createElement('a');
+        a.setAttribute("href", dataStr);
+        a.setAttribute("download", "acem_backup.json");
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      });
+
+      document.getElementById('btn-reset-data').addEventListener('click', function() {
+        if (confirm('Reset question bank back to the 2 default starter questions?')) {
+          appData.questions = SEED_QUESTIONS.slice();
+          appData.srs = {};
+          currentCardIndex = 0;
+          saveState();
+          renderCard();
+          document.getElementById('modal-io').classList.remove('open');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
