@@ -733,114 +733,118 @@
         return;
       }
 
-      // Extract JSON even if AI Studio included conversational text or ```json fences
+      // 1. Strip markdown code fences if present
       var cleaned = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
-      var firstBrace = cleaned.search(/[\{\[]/);
-      var lastBrace = Math.max(cleaned.lastIndexOf('}'), cleaned.lastIndexOf(']'));
-      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-        cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+
+      // 2. Unwrap {"response": "..."} if AI Studio trapped the JSON inside a string!
+      if (/^\{\s*"response"\s*:\s*"/.test(cleaned)) {
+        try {
+          var fullWrap = JSON.parse(cleaned);
+          if (typeof fullWrap.response === 'string') cleaned = fullWrap.response;
+        } catch (e) {
+          // It was both wrapped in "response" AND truncated at the end! Unescape it manually:
+          cleaned = cleaned.replace(/^\{\s*"response"\s*:\s*"/, '');
+          cleaned = cleaned.replace(/"\s*\}?\s*$/, '');
+          cleaned = cleaned
+            .replace(/\\n/g, '\n')
+            .replace(/\\r/g, '\r')
+            .replace(/\\t/g, '\t')
+            .replace(/\\"/g, '"')
+            .replace(/\\\\/g, '\\');
+        }
       }
 
+      // 3. Parse JSON, or auto-salvage completed questions if truncated mid-stream!
+      var incoming = [];
       try {
         var parsed = JSON.parse(cleaned);
-
-        // Smart recursive finder: locates any array containing question-like objects
-        function findQuestionsArray(obj) {
-          if (!obj) return null;
-          if (Array.isArray(obj)) {
-            if (obj.length > 0 && typeof obj[0] === 'object' && obj[0] !== null) {
-              var sample = obj[0];
-              if (sample.stem || sample.question || sample.questionText || sample.prompt || sample.scenario || sample.options || sample.markingCriteria || sample.modelAnswer) {
-                return obj;
-              }
-            }
-          } else if (typeof obj === 'object') {
-            var keys = Object.keys(obj);
-            for (var i = 0; i < keys.length; i++) {
-              var found = findQuestionsArray(obj[keys[i]]);
-              if (found) return found;
-            }
-          }
-          return null;
-        }
-
-        var incoming = findQuestionsArray(parsed);
-        if (!incoming && parsed && (parsed.stem || parsed.question || parsed.scenario)) {
-          incoming = [parsed];
-        }
-
-        if (!incoming || !incoming.length) {
-          var topKeys = (parsed && typeof parsed === 'object') ? Object.keys(parsed).join(', ') : typeof parsed;
-          statusEl.style.color = 'var(--red)';
-          statusEl.textContent = 'Could not find questions. Top-level keys found: [' + topKeys + ']. Make sure you pasted the Question Bank JSON, not the Skill Tree schema.';
-          return;
-        }
-
-        var existingIds = {};
-        for (var i = 0; i < appData.questions.length; i++) {
-          existingIds[appData.questions[i].questionId] = true;
-        }
-
-        var added = 0;
-        for (var j = 0; j < incoming.length; j++) {
-          var rawItem = incoming[j];
-          // Normalize field names in case AI Studio used variations
-          var item = {
-            questionId: rawItem.questionId || rawItem.id || ('CUSTOM-Q-' + (appData.questions.length + j + 1)),
-            targetNodeId: rawItem.targetNodeId || rawItem.nodeId || 'RESUS-01',
-            topic: rawItem.topic || rawItem.title || rawItem.subtopic || 'Clinical Scenario',
-            stem: rawItem.stem || rawItem.question || rawItem.questionText || rawItem.scenario || rawItem.prompt || '',
-            options: rawItem.options || rawItem.choices || null,
-            correctOption: rawItem.correctOption || rawItem.correctAnswer || rawItem.answer || null,
-            markingCriteria: rawItem.markingCriteria || rawItem.markingPoints || rawItem.rubric || [],
-            modelAnswer: rawItem.modelAnswer || rawItem.explanation || rawItem.rationale || rawItem.suggestedAnswer || '',
-            citation: rawItem.citation || rawItem.reference || { textbook: 'Tintinalli / Rosen', chapterTitle: '', keySection: '' },
-            tables: rawItem.tables || []
-          };
-
-          item.questionType = rawItem.questionType || ((item.options && Object.keys(item.options).length) ? 'MCQ' : 'SAQ');
-
-          if (!existingIds[item.questionId]) {
-            appData.questions.push(item);
-            existingIds[item.questionId] = true;
-            added++;
-          } else {
-            for (var k = 0; k < appData.questions.length; k++) {
-              if (appData.questions[k].questionId === item.questionId) {
-                appData.questions[k] = item;
-                added++;
-                break;
+        if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+        if (Array.isArray(parsed)) incoming = parsed;
+        else if (parsed && Array.isArray(parsed.questions)) incoming = parsed.questions;
+      } catch (err) {
+        // Auto-salvage: extract every complete question object before the cut-off point
+        var qArrayStart = cleaned.indexOf('"questions"');
+        var searchArea = qArrayStart !== -1 ? cleaned.slice(qArrayStart) : cleaned;
+        var bracketStart = searchArea.indexOf('[');
+        if (bracketStart !== -1) {
+          var str = searchArea.slice(bracketStart + 1);
+          var depth = 0, objStart = -1, inStr = false, esc = false;
+          for (var c = 0; c < str.length; c++) {
+            var ch = str[c];
+            if (esc) { esc = false; continue; }
+            if (ch === '\\') { esc = true; continue; }
+            if (ch === '"') { inStr = !inStr; continue; }
+            if (!inStr) {
+              if (ch === '{') {
+                if (depth === 0) objStart = c;
+                depth++;
+              } else if (ch === '}') {
+                depth--;
+                if (depth === 0 && objStart !== -1) {
+                  var chunk = str.slice(objStart, c + 1);
+                  try {
+                    var qObj = JSON.parse(chunk);
+                    if (qObj && (qObj.stem || qObj.questionId)) incoming.push(qObj);
+                  } catch (ignore) {}
+                  objStart = -1;
+                }
               }
             }
           }
         }
-
-        saveState();
-        document.getElementById('io-textarea').value = '';
-        statusEl.style.color = 'var(--emerald)';
-        statusEl.textContent = 'Success! Imported ' + added + ' questions. Total in deck: ' + appData.questions.length;
-        setTimeout(function() {
-          document.getElementById('modal-io').classList.remove('open');
-          showView('study');
-        }, 900);
-      } catch (err) {
-        statusEl.style.color = 'var(--red)';
-        statusEl.textContent = 'JSON Syntax Error: ' + err.message + '. Check that the output was not cut off at the bottom.';
       }
-    }
 
-        saveState();
-        document.getElementById('io-textarea').value = '';
-        statusEl.style.color = 'var(--emerald)';
-        statusEl.textContent = 'Success! Imported ' + added + ' questions. Total in deck: ' + appData.questions.length;
-        setTimeout(function() {
-          document.getElementById('modal-io').classList.remove('open');
-          showView('study');
-        }, 900);
-      } catch (err) {
+      if (!incoming || !incoming.length) {
         statusEl.style.color = 'var(--red)';
-        statusEl.textContent = 'JSON Syntax Error: ' + err.message + '. Check that the entire output from { to } was copied.';
+        statusEl.textContent = 'Could not extract complete questions. Make sure you copied from the very beginning { of the output.';
+        return;
       }
+
+      var existingIds = {};
+      for (var i = 0; i < appData.questions.length; i++) {
+        existingIds[appData.questions[i].questionId] = true;
+      }
+
+      var added = 0;
+      for (var j = 0; j < incoming.length; j++) {
+        var rawItem = incoming[j];
+        var item = {
+          questionId: rawItem.questionId || rawItem.id || ('CUSTOM-Q-' + (appData.questions.length + j + 1)),
+          targetNodeId: rawItem.targetNodeId || rawItem.nodeId || 'RESUS-01',
+          topic: rawItem.topic || rawItem.title || 'Clinical Scenario',
+          stem: rawItem.stem || rawItem.question || '',
+          options: rawItem.options || null,
+          correctOption: rawItem.correctOption || rawItem.answer || null,
+          markingCriteria: rawItem.markingCriteria || [],
+          modelAnswer: rawItem.modelAnswer || rawItem.explanation || '',
+          citation: rawItem.citation || { textbook: 'Tintinalli 9e', chapterTitle: '', keySection: '' },
+          tables: rawItem.tables || []
+        };
+        item.questionType = rawItem.questionType || ((item.options && Object.keys(item.options).length) ? 'MCQ' : 'SAQ');
+
+        if (!existingIds[item.questionId]) {
+          appData.questions.push(item);
+          existingIds[item.questionId] = true;
+          added++;
+        } else {
+          for (var k = 0; k < appData.questions.length; k++) {
+            if (appData.questions[k].questionId === item.questionId) {
+              appData.questions[k] = item;
+              added++;
+              break;
+            }
+          }
+        }
+      }
+
+      saveState();
+      document.getElementById('io-textarea').value = '';
+      statusEl.style.color = 'var(--emerald)';
+      statusEl.textContent = 'Success! Imported ' + added + ' complete questions (Total in deck: ' + appData.questions.length + ').';
+      setTimeout(function() {
+        document.getElementById('modal-io').classList.remove('open');
+        showView('study');
+      }, 1000);
     }
 
     // Attach all UI listeners once DOM loads
